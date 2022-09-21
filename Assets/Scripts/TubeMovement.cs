@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,6 +16,8 @@ public class TubeMovement : MonoBehaviour
     private Transform mUpperTube;
     private Transform mLowerTube;
 
+    private bool mRunning = true;
+
     private void Start()
     {
         mScreenBounds = Camera.main.ScreenToWorldPoint(
@@ -25,19 +28,22 @@ public class TubeMovement : MonoBehaviour
         mLowerTube = transform.Find("LowerTube");
 
         mTubeSize = mUpperTube.GetComponent<SpriteRenderer>().bounds.size;
+
+        BirdController.Instance.AddDelegate(OnBirdCollisionDelegate);
     }
 
     private void Update()
     {
-        transform.position -= Vector3.right * speed * Time.deltaTime;
-        if (transform.position.x < -3f)
+        if (mRunning)
         {
-            // Deberia reposicionarse
-            ReposicionarX();
-            ReposicionarY();
+            transform.position -= Vector3.right * speed * Time.deltaTime;
+            if (transform.position.x < -3f)
+            {
+                // Deberia reposicionarse
+                ReposicionarX();
+                ReposicionarY();
+            }
         }
-
-        
     }
 
     private void ReposicionarX()
@@ -54,7 +60,7 @@ public class TubeMovement : MonoBehaviour
         mLowerLimit = mScreenBounds.y - (mTubeSize.y / 2f);
         mUpperLimit = -mScreenBounds.y + mTubeSize.y + gap + (mTubeSize.y / 2f);
 
-        var posY = Random.Range(mLowerLimit, mUpperLimit);
+        var posY = UnityEngine.Random.Range(mLowerLimit, mUpperLimit);
 
 
         mUpperTube.position = new Vector3(
@@ -70,4 +76,8 @@ public class TubeMovement : MonoBehaviour
         );
     }
 
+    public void OnBirdCollisionDelegate(object sender, EventArgs args)
+    {
+        mRunning = false;
+    }
 }
